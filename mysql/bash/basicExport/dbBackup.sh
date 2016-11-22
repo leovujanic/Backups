@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-START_TIME=$SECONDS
-
 # Load config variables
 source config.sh
 
