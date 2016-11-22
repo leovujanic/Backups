@@ -7,6 +7,7 @@ DBUSER="root"
 DBPASS=""
 
 # databases to be exported use "*" if you want backup all DB-s
+# for specific databases use "db1, db2,db3"
 DATABASES="*"
 
 # Destination directory
