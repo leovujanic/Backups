@@ -1,7 +1,20 @@
 #!/usr/bin/env bash
 
-# Load config variables
-source config.sh
+
+# Database Username
+DBUSER=
+
+# Database password - leave empty if there is no password
+DBPASS=""
+
+# databases to be exported use "*" if you want backup all DB-s
+# for specific databases use "db1, db2,db3"
+DATABASES="*"
+
+# Destination directory
+#DUMP_DESTINATION="/Users/leonardvujanic/mysqlDump/dumps"
+DUMP_DESTINATION=
+
 
 # colors
 RED="\e[31m"
@@ -9,14 +22,70 @@ NC="\e[0m"
 GREEN="\e[32m"
 BLUE="\e[34m"
 
+# usage print out
+usage() {
+printf "${GREEN} Basic mysql backup ${NC}\n"
+cat<<'EOF'
+This script exports databases via mysql dump.
+It will create folders in specified output folder in format YEAR / MONTH / and place output file in it.
+
+OPTIONS:
+   -h      Show this message
+   -u      Database username - REQUIRED
+   -p      Database password - default empty
+   -o      Output directory  - must be specified as full path
+   -d     Databases list.   - dafault "*" --all databases
+           For specific database use comaseparated values like "db1, db2,db3"
+EOF
+}
+
+
+if [ -f "config.sh" ];
+    then
+        source config.sh
+    fi
+
+while getopts ":u:p:o:d:h" opt; do
+    case $opt in
+        h)
+            usage
+            exit 1;
+            ;;
+        u)
+            DBUSER=$OPTARG
+            ;;
+        p)
+            DBPASS=$OPTARG
+            ;;
+        o)
+            DUMP_DESTINATION=$OPTARG
+            ;;
+        d)
+            DATABASES=$OPTARG
+            ;;
+        \?) echo "Invalid option -$OPTARG. Use -h option for help." >&2
+            exit 0;
+            ;;
+    esac
+done
+
+
+if [[ -z $DBUSER ]] || [[ -z $DUMP_DESTINATION ]]
+then
+     usage
+     exit 1
+fi
+
 printf "Starting mysql export in '%s' BASH version\n" $BASH_VERSION
 
 printf "Checking destination directory is absolute path '%s' : " $DUMP_DESTINATION;
 
+# print OK status
 echoOk() {
     printf "[ ${GREEN} OK ${NC} ]\n"
 }
 
+# print NOK status
 echoNok() {
     printf "[ ${RED} NOK ${NC} ]\n"
 }
